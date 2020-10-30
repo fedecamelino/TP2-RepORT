@@ -15,7 +15,7 @@ router.get('/:id', verifyToken.verificarToken, async (req, res) => {
     res.json(await dataInventor.getInventor(req.params.id));
 });
 
-// Alta de inventor
+/* Alta de inventor */
 router.post('/', verifyToken.verificarToken, async (req, res) =>{
     const inventor = req.body;
 
@@ -26,6 +26,28 @@ router.post('/', verifyToken.verificarToken, async (req, res) =>{
     catch(error) {
       res.status(500).send(error);
     }
+});
+
+/* Modificacion de inventor */
+router.put('/:id', verifyToken.verificarToken, async (req, res) => {
+  const inventor = req.body;
+  try {
+    inventor._id = req.params.id;
+    const result = await dataInventor.updateInventor(inventor);
+    res.json(result);
+  } catch (error) {
+    res.status(500).send(error);
+  }
+});
+
+/* Eliminacion de inventor */
+router.delete('/:id', verifyToken.verificarToken, async (req, res)=>{
+  try {
+    const result = await dataInventor.deleteInventor(req.params.id);
+    res.send(result);
+  } catch (error) {
+    res.status(500).send(error);
+  }
 });
 
 module.exports = router;

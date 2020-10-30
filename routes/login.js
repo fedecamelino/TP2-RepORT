@@ -2,12 +2,12 @@ const express = require('express');
 const router = express.Router();
 const dataUsers = require('../data/user');
 var jwt = require('jsonwebtoken');
+const secretKey = process.env.SECRET_KEY;
 
 router.post('/', async (req, res) => {
   const user = req.body;
 
   try {
-
     //Buscar usuario-objeto
     const usuarioLogin = await dataUsers.getUser(user.email);
 
@@ -17,7 +17,7 @@ router.post('/', async (req, res) => {
     
       //Validar contraseña de usuario valido
       const valido = validarPassword(usuarioLogin, user);
-      console.log(valido)
+      //console.log(valido)
 
       //Si es valido, generar token
       if (!valido) {
@@ -39,10 +39,10 @@ router.post('/', async (req, res) => {
 //Autenticar usuario
 function validarPassword(userDB, userIngresado) {
   console.log(userDB)
-  console.log(userIngresado.password)
+  //console.log(userIngresado.password)
   if (userDB.password === userIngresado.password) {
-    console.log(userDB.password)
-    console.log(userIngresado.password)
+    //console.log(userDB.password)
+    //console.log(userIngresado.password)
     return true
   }
   else return false
@@ -50,7 +50,7 @@ function validarPassword(userDB, userIngresado) {
 
 //Generar token
 function generarToken(usuario) {
-  const token = jwt.sign({ foo: usuario.email }, 'shhhhhh', { expiresIn : 60 });
+  const token = jwt.sign({ foo: usuario.email }, secretKey, { expiresIn : '7d' });
   return token;
 }
 

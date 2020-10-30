@@ -11,7 +11,7 @@ async function writeMocInventor(inventors){
 }
 
 async function getAllInventors(){
-    const connectionMongo = await connection.getConnection(); //Creo una conexion por modulo, pensando en microservicios. 
+    const connectionMongo = await connection.getConnection(); 
     const inventors = await connectionMongo.db('PruebaDB')
                         .collection('inventors')
                         .find()
@@ -27,11 +27,7 @@ async function getInventor(id){
     return inventor;
 }
 
-async function pushInventor(inventor){
-    /* const data = await readMocInventor();
-    data.inventors.push(inventor);
-    await writeMocInventor(data); */
-
+async function pushInventor(inventor) {
     const connectionMongo = await connection.getConnection();
     const result = await connectionMongo.db('PruebaDB')
                         .collection('inventors')
@@ -39,7 +35,7 @@ async function pushInventor(inventor){
     return result;
 }
 
-async function updateInventor(inventor){
+async function updateInventor(inventor) {
     const connectionMongo = await connection.getConnection();
     const query = {_id: parseInt(inventor._id)}
     const newValues = {
@@ -56,7 +52,7 @@ async function updateInventor(inventor){
     return result;
 }
 
-async function deleteInventor(id){
+async function deleteInventor(id) {
     const connectionMongo = await connection.getConnection();
     const result = await connectionMongo.db('PruebaDB')
                         .collection('inventors')
@@ -64,4 +60,11 @@ async function deleteInventor(id){
     return result;
 }
 
-module.exports = {getAllInventors, getInventor, pushInventor}
+module.exports = {  readMocInventor,
+                    writeMocInventor,
+                    getAllInventors, 
+                    getInventor, 
+                    pushInventor,
+                    updateInventor,
+                    deleteInventor
+                }
