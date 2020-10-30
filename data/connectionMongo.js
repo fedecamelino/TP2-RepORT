@@ -1,9 +1,9 @@
-//const mongoClient = require('mongodb').MongoClient;
 const chalk = require('chalk');
 const { MongoClient } = require('mongodb');
+require('dotenv').config();
 
-// TODO: Crear variables de entorno, sacar el harcodeo
-const uriMongo = 'mongodb+srv://admin:yattp2@cluster0.noihx.azure.mongodb.net/sample_tp2?retryWrites=true&w=majority';
+// Cadena de conexion con variable de entorno .env
+const uriMongo = process.env.URIMONGO;
 
 const client = new MongoClient(uriMongo, {useUnifiedTopology: true, useNewUrlParser:true})
 
