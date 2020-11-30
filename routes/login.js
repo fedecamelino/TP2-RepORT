@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const dataUsers = require('../data/user');
 var jwt = require('jsonwebtoken');
+const dataMOCUser = require('../data/userMOC')
 const secretKey = process.env.SECRET_KEY;
 
 router.post('/', async (req, res) => {
@@ -26,6 +27,12 @@ router.post('/', async (req, res) => {
         //res.json(usuarioLogin);
         console.log("generando token...");
         const token = generarToken(usuarioLogin);
+        const usuario = {
+          "email": usuarioLogin.email,
+          "nombre": usuarioLogin.nombre,
+          "apellido": usuarioLogin.apellido
+        }
+        dataMOCUser.writeMocUser(usuario);
         res.send(token);
         console.log(token);
       }
@@ -50,7 +57,7 @@ function validarPassword(userDB, userIngresado) {
 
 //Generar token
 function generarToken(usuario) {
-  const token = jwt.sign({ foo: usuario.email }, secretKey, { expiresIn : '7d' });
+  const token = jwt.sign({ user: usuario.email }, secretKey, { expiresIn : '7d' });
   return token;
 }
 

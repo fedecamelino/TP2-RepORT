@@ -6,7 +6,7 @@ async function getUser(email){
     console.log(email)
 
     const connectionMongo = await connection.getConnection();
-    const user = await connectionMongo.db('PruebaDB')
+    const user = await connectionMongo.db('RepORT')
                         .collection('users')
                         .findOne({email: email });
     return user;
