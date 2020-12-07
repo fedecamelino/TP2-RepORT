@@ -1,31 +1,21 @@
 const express = require('express');
 const router = express.Router();
 const dataUsers = require('../data/user');
+const dataMOCUser = require('../data/userMOC');
 var jwt = require('jsonwebtoken');
-const dataMOCUser = require('../data/userMOC')
 const secretKey = process.env.SECRET_KEY;
+const invalidCredentials = "Usuario y/o contraseña invalida";
 
 router.post('/', async (req, res) => {
   const user = req.body;
-
   try {
-    //Buscar usuario-objeto
     const usuarioLogin = await dataUsers.getUser(user.email);
-
-    if (usuarioLogin == null) {res.send("Usuario y/o contraseña invalida");}
+    if (usuarioLogin == null) res.send(invalidCredentials);
     else {
-      //console.log(usuarioLogin);
-    
-      //Validar contraseña de usuario valido
       const valido = validarPassword(usuarioLogin, user);
-      //console.log(valido)
-
-      //Si es valido, generar token
-      if (!valido) {
-        res.send("Contraseña invalida")
-      } else {
-        //res.json(usuarioLogin);
-        console.log("generando token...");
+      if (!valido) res.send(invalidCredentials);
+      else {
+        console.log("Generando token ...");
         const token = generarToken(usuarioLogin);
         const usuario = {
           "email": usuarioLogin.email,
@@ -43,19 +33,13 @@ router.post('/', async (req, res) => {
   }
 });
 
-//Autenticar usuario
+/* Autenticar usuario */
 function validarPassword(userDB, userIngresado) {
-  console.log(userDB)
-  //console.log(userIngresado.password)
-  if (userDB.password === userIngresado.password) {
-    //console.log(userDB.password)
-    //console.log(userIngresado.password)
-    return true
-  }
-  else return false
+  if (userDB.password === userIngresado.password) return true;
+  else return false;
  }
 
-//Generar token
+/* Generar token */
 function generarToken(usuario) {
   const token = jwt.sign({ user: usuario.email }, secretKey, { expiresIn : '7d' });
   return token;

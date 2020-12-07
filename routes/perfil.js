@@ -7,9 +7,9 @@ const dataMOCUser = require('../data/userMOC');
 router.get('/', verifyToken.verificarToken, async (req, res) => {
   const usuarioLogin = await dataMOCUser.readMocUser()
   res.json(usuarioLogin);
-  console.log("Aca se lee el usuario");
-  console.log(usuarioLogin);
 });
+
+module.exports = router;
 
 /* Modificacion de perfil */
 /* router.put('/:id', verifyToken.verificarToken, async (req, res) => {
@@ -23,5 +23,3 @@ router.get('/', verifyToken.verificarToken, async (req, res) => {
   }
 });
  */
-
-module.exports = router;

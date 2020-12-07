@@ -9,4 +9,7 @@ async function writeMocUser(usuario){
     await fs.writeFile(PATH, JSON.stringify(usuario, null, ' '));
 }
 
-module.exports = { readMocUser, writeMocUser }
+module.exports = { 
+                    readMocUser, 
+                    writeMocUser 
+                }

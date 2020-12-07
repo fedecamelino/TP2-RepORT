@@ -1,7 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const dataTemas = require('../data/tema');
+const dataComentarios = require('../data/comentario');
+const dataMOCUser = require('../data/userMOC');
 const verifyToken = require('./middleware');
+const invalidTituloTema = "El titulo del tema ya existe";
+const invalidTemaModification = "No se puede modificar el tema ya que contiene comentarios asociados";
+const invalidUserCreator = "Usuario no autorizado, sólo el usuario creador puede borrar el comentarios";
 
 /* Listado de todos los temas */
 router.get('/', verifyToken.verificarToken, async (req, res) => {
@@ -9,44 +14,82 @@ router.get('/', verifyToken.verificarToken, async (req, res) => {
   res.json(data); 
 });
 
-/* Un tema especifico */
+/* Ver un tema especifico */
 router.get('/:id', verifyToken.verificarToken, async (req, res) => {
-    // res.json el estatus es 200 por defecto
-    res.json(await dataTemas.getTema(req.params.id));
+  const idTema = req.params.id;
+  const tema = await dataTemas.getTema(idTema);
+  const comentariosTotales = await dataComentarios.getAllComentarios();
+  const comentarios = comentariosTotales.filter(comentario => comentario._idTema == idTema);
+  res.json({tema: tema, comentarios: comentarios});
 });
 
 /* Alta de tema */
-router.post('/', verifyToken.verificarToken, async (req, res) =>{
-    const tema = req.body;
-
-    try {
+router.post('/', verifyToken.verificarToken, async (req, res) => { 
+  const tema = req.body;
+  try {
+    const temaNuevo = await dataTemas.getTituloTema(tema.titulo);
+    console.log(temaNuevo);
+    if (temaNuevo == null) {
+      tema["_id"] = await dataTemas.autoGenerateId();
+      const userActual = await dataMOCUser.readMocUser();
+      tema["email"] = userActual.email;
       const result = await dataTemas.pushTema(tema);
       res.json(result);
     }
-    catch(error) {
-      res.status(500).send(error);
+    else {
+      res.send(invalidTituloTema);
     }
+  }
+  catch(error) {
+    res.status(500).send(error);
+  }
 });
 
 /* Modificacion de tema */
-/* Crear validación que si el tema no tiene comentarios, se puede modificar */
-/* router.put('/:id', verifyToken.verificarToken, async (req, res) => {
+router.put('/:id', verifyToken.verificarToken, async (req, res) => {
   const tema = req.body;
   try {
     tema._id = req.params.id;
-    const result = await dataTemas.updateTema(tema);
-    res.json(result);
+    const comentario = await dataComentarios.getComentario(tema._id);
+    if (comentario == null) {
+      const result = await dataTemas.updateTema(tema);
+      res.json(result);
+    }
+    else {
+      res.status(401).send(invalidTemaModification);
+    }
   } catch (error) {
     res.status(500).send(error);
   }
 });
- */
 
-/* Eliminacion de tema */
-router.delete('/:id', verifyToken.verificarToken, async (req, res)=>{
+/* Alta de Comentario */
+router.post('/:idtema', verifyToken.verificarToken, async (req, res) => {
+  const comentario = req.body;
   try {
-    const result = await dataTemas.deleteTema(req.params.id);
-    res.send(result);
+    comentario["_id"] = await dataComentarios.autoGenerateId();
+    comentario["_idTema"] = parseInt(req.params.idtema);
+    const user = await dataMOCUser.readMocUser();
+    comentario["usuario"] = user.email;
+    const result = await dataComentarios.pushComentario(comentario);
+    res.json(result);
+  } catch(error) {
+    res.status(500).send(error);
+  }
+});
+
+/* Eliminacion de Comentario */
+router.delete('/:idtema/:idcomment', verifyToken.verificarToken, async (req, res)=>{
+  try {
+    const userActual = await dataMOCUser.readMocUser();
+    const comentario = await dataComentarios.getComentarioId(req.params.idcomment);
+    if (userActual.email == comentario.usuario) {
+      const result = await dataComentarios.deleteComentario(req.params.idcomment);
+      res.send(result);
+    }
+    else {
+      res.status(401).send(invalidUserCreator);
+    }
   } catch (error) {
     res.status(500).send(error);
   }

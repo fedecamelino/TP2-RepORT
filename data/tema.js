@@ -1,14 +1,14 @@
 const fs = require('fs').promises;
-//const PATH = __dirname + '/temasMOC.json';
-const connection = require('./connectionMongo')
+const connection = require('./connectionMongo');
 
-/* async function readMocTema(){
-    return JSON.parse( await fs.readFile(PATH, 'utf8'));
+async function autoGenerateId(){
+    const connectionMongo = await connection.getConnection();
+    const nextId = await connectionMongo.db('RepORT')
+                        .collection('temas')
+                        .find()
+                        .count() + 1;
+    return nextId;
 }
-
-async function writeMocTema(temas){
-    await fs.writeFile(PATH, JSON.stringify(temas, null, ' '));
-} */
 
 async function getAllTemas(){
     const connectionMongo = await connection.getConnection(); 
@@ -27,6 +27,14 @@ async function getTema(id){
     return tema;
 }
 
+async function getTituloTema(titulo){
+    const connectionMongo = await connection.getConnection();
+    const tituloTema = await connectionMongo.db('RepORT')
+                        .collection('temas')
+                        .findOne({ titulo: titulo })
+    return tituloTema;
+}
+
 async function pushTema(tema) {
     const connectionMongo = await connection.getConnection();
     const result = await connectionMongo.db('RepORT')
@@ -40,10 +48,9 @@ async function updateTema(tema) {
     const query = {_id: parseInt(tema._id)}
     const newValues = {
         $set: {
-            first: tema.first,
-            last: tema.last,
-            year: tema.year,
-            img: tema.img
+            titulo: tema.titulo,
+            descripcion: tema.descripcion,
+            categoria: tema.categoria
         }
     }
     const result = await connectionMongo.db('RepORT')
@@ -54,17 +61,17 @@ async function updateTema(tema) {
 
 async function deleteTema(id) {
     const connectionMongo = await connection.getConnection();
-    //Agregar validacion que solo el usuario propietario puede borrar tema, sino devuelve denegado
     const result = await connectionMongo.db('RepORT')
                         .collection('temas')
                         .deleteOne({_id: parseInt(id)})
     return result;
 }
 
-module.exports = {  //readMocTema,
-                    //writeMocTema,
+module.exports = {  
+                    autoGenerateId,
                     getAllTemas, 
-                    getTema, 
+                    getTema,
+                    getTituloTema, 
                     pushTema,
                     updateTema,
                     deleteTema

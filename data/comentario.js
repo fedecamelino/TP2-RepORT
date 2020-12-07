@@ -1,14 +1,14 @@
 const fs = require('fs').promises;
-//const PATH = __dirname + '/comentariosMOC.json';
-const connection = require('./connectionMongo')
+const connection = require('./connectionMongo');
 
-/* async function readMocComentario(){
-    return JSON.parse( await fs.readFile(PATH, 'utf8'));
+async function autoGenerateId(){
+    const connectionMongo = await connection.getConnection();
+    const nextId = await connectionMongo.db('RepORT')
+                        .collection('comentarios')
+                        .find()
+                        .count() + 1;
+    return nextId;
 }
-
-async function writeMocComentario(comentarios){
-    await fs.writeFile(PATH, JSON.stringify(comentarios, null, ' '));
-} */
 
 async function getAllComentarios(){
     const connectionMongo = await connection.getConnection(); 
@@ -19,7 +19,15 @@ async function getAllComentarios(){
     return comentarios;
 }
 
-async function getComentario(id){
+async function getComentario(idTema){
+    const connectionMongo = await connection.getConnection();
+    const comentario = await connectionMongo.db('RepORT')
+                        .collection('comentarios')
+                        .findOne({_idTema: parseInt(idTema)})
+    return comentario;
+}
+
+async function getComentarioId(id){
     const connectionMongo = await connection.getConnection();
     const comentario = await connectionMongo.db('RepORT')
                         .collection('comentarios')
@@ -35,37 +43,19 @@ async function pushComentario(comentario) {
     return result;
 }
 
-async function updateComentario(comentario) {
-    const connectionMongo = await connection.getConnection();
-    const query = {_id: parseInt(comentario._id)}
-    const newValues = {
-        $set: {
-            first: comentario.first,
-            last: comentario.last,
-            year: comentario.year,
-            img: comentario.img
-        }
-    }
-    const result = await connectionMongo.db('RepORT')
-                        .collection('comentarios')
-                        .updateOne(query, newValues)
-    return result;
-}
-
 async function deleteComentario(id) {
     const connectionMongo = await connection.getConnection();
-    //Agregar validacion que solo el usuario propietario puede borrar comentario, sino devuelve denegado
     const result = await connectionMongo.db('RepORT')
                         .collection('comentarios')
                         .deleteOne({_id: parseInt(id)})
     return result;
 }
 
-module.exports = {  readMocComentario,
-                    writeMocComentario,
-                    getAllComentarios, 
-                    getComentario, 
+module.exports = {
+                    autoGenerateId,
+                    getAllComentarios,
+                    getComentario,
+                    getComentarioId,
                     pushComentario,
-                    updateComentario,
                     deleteComentario
                 }

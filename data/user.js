@@ -1,10 +1,7 @@
 const fs = require('fs').promises;
-const PATH = __dirname + '/usersMOC.json';
 const connection = require('./connectionMongo');
 
 async function getUser(email){
-    console.log(email)
-
     const connectionMongo = await connection.getConnection();
     const user = await connectionMongo.db('RepORT')
                         .collection('users')
@@ -12,4 +9,27 @@ async function getUser(email){
     return user;
 }
 
-module.exports = {getUser}
+async function autoGenerateId() {
+    const connectionMongo = await connection.getConnection();
+    const nextId = await connectionMongo.db('RepORT')
+                        .collection('users')
+                        .find()
+                        .count() + 1;
+    console.log("Proximo usuario.. id = ", nextId);
+    return nextId;
+}
+
+async function pushUser(user) {
+    const connectionMongo = await connection.getConnection();
+    const result = await connectionMongo.db('RepORT')
+                        .collection('users')
+                        .insertOne(user)
+    return result;
+}
+
+
+module.exports = { 
+                    getUser, 
+                    autoGenerateId, 
+                    pushUser 
+                }
