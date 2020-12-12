@@ -3,6 +3,7 @@ const router = express.Router();
 const dataUsers = require('../data/user');
 const dataMOCUser = require('../data/userMOC');
 var jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
 const secretKey = process.env.SECRET_KEY;
 const invalidCredentials = "Usuario y/o contraseña invalida";
 
@@ -35,9 +36,9 @@ router.post('/', async (req, res) => {
 
 /* Autenticar usuario */
 function validarPassword(userDB, userIngresado) {
-  if (userDB.password === userIngresado.password) return true;
-  else return false;
- }
+  const valido = bcrypt.compare(userIngresado.password, userDB.password);
+  return valido;
+}
 
 /* Generar token */
 function generarToken(usuario) {

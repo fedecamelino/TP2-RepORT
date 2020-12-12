@@ -1,7 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const dataUser = require('../data/user');
-const invalidUserName = "El email elegido ya existe"
+const invalidUserName = "El email elegido ya existe";
+const bcrypt = require('bcrypt');
+const saltRounds = 10;
 
 /* Alta de usuario */
 router.post('/', async (req, res) => {
@@ -10,6 +12,10 @@ router.post('/', async (req, res) => {
         const usuarioRegistrado = await dataUser.getUser(user.email);
         if (usuarioRegistrado == null) {
             user["_id"] = await dataUser.autoGenerateId();
+            bcrypt.hash(user.password, saltRounds, function(err, hash) {
+                console.log(hash);
+                user.password = hash;
+            })
             const result = await dataUser.pushUser(user);
             res.json(result);
         }
