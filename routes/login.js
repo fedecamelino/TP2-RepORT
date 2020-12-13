@@ -13,7 +13,7 @@ router.post('/', async (req, res) => {
     const usuarioLogin = await dataUsers.getUser(user.email);
     if (usuarioLogin == null) res.send(invalidCredentials);
     else {
-      const valido = validarPassword(usuarioLogin, user);
+      const valido = await validarPassword(usuarioLogin, user);
       if (!valido) res.send(invalidCredentials);
       else {
         console.log("Generando token ...");
@@ -35,8 +35,9 @@ router.post('/', async (req, res) => {
 });
 
 /* Autenticar usuario */
-function validarPassword(userDB, userIngresado) {
-  const valido = bcrypt.compare(userIngresado.password, userDB.password);
+async function validarPassword(userDB, userIngresado) {
+  const valido = await bcrypt.compare(userIngresado.password, userDB.password);
+  console.log(valido);
   return valido;
 }
 

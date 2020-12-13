@@ -32,7 +32,7 @@ router.post('/', verifyToken.verificarToken, async (req, res) => {
     if (temaNuevo == null) {
       tema["_id"] = await dataTemas.autoGenerateId();
       const userActual = await dataMOCUser.readMocUser();
-      tema["email"] = userActual.email;
+      tema["usuario"] = userActual.email;
       const result = await dataTemas.pushTema(tema);
       res.json(result);
     }

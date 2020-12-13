@@ -12,7 +12,7 @@ router.post('/', async (req, res) => {
         const usuarioRegistrado = await dataUser.getUser(user.email);
         if (usuarioRegistrado == null) {
             user["_id"] = await dataUser.autoGenerateId();
-            bcrypt.hash(user.password, saltRounds, function(err, hash) {
+            await bcrypt.hash(user.password, saltRounds, function(err, hash) {
                 console.log(hash);
                 user.password = hash;
             })
